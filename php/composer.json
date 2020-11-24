@@ -1,0 +1,13 @@
+{
+    "name": "divt/cvsu",
+    "authors": [
+        {
+            "name": "kokohi28",
+            "email": "himawan.koko@gmail.com"
+        }
+    ],
+    "require": {},
+    "scripts": {
+        "server": "php -S localhost:8000 router.php"
+    }
+}
