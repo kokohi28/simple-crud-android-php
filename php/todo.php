@@ -1,6 +1,5 @@
 <?php
 class Todo {
-  // database connection and table name
   private $conn;
   private $table_name = "todos";
   
