@@ -40,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
     return mHandler;
   }
 
+  public interface AdapterAct {
+    void markDone(int id);
+    void delete(int id);
+  }
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -54,7 +59,17 @@ public class MainActivity extends AppCompatActivity {
     mRecyclerView.setRecycledViewPool(new RecyclerView.RecycledViewPool());
     mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-    mAdapter = new TodoAdapter(this, mTodo);
+    mAdapter = new TodoAdapter(this, mTodo, new AdapterAct() {
+      @Override
+      public void markDone(int id) {
+        markTodoDone(MainActivity.this, id);
+      }
+
+      @Override
+      public void delete(int id) {
+        deleteTodo(MainActivity.this, id);
+      }
+    });
     mRecyclerView.setAdapter(mAdapter);
 
     EditText etTodo = findViewById(R.id.et_todo);
@@ -127,6 +142,113 @@ public class MainActivity extends AppCompatActivity {
     StringRequest stringReq = new StringRequest(Request.Method.POST, url,
         response -> {
           Log.d(TAG, "addTodo Response: " + response);
+          try {
+            JSONObject respJSON = new JSONObject(response);
+            if (respJSON.has("code")) {
+              int code = respJSON.getInt("code");
+              if (code == 0) {
+                ctx.getTodo(ctx);
+              }
+            }
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+        },
+        error -> Log.e(TAG, "Volley Error : " + error.getMessage())
+    ){
+      @Override
+      public byte[] getBody() {
+        return obj.toString().getBytes();
+      }
+
+      @Override
+      public String getBodyContentType() {
+        return "application/json";
+      }
+
+      @Override
+      public Map<String, String> getHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+
+        return headers;
+      }
+    };
+
+    queue.add(stringReq);
+  }
+
+  private void markTodoDone(
+      @NonNull MainActivity ctx,
+      int id
+  ) {
+    RequestQueue queue = Volley.newRequestQueue(ctx);
+    String url = END_POINT + "/markTodo";
+
+    JSONObject obj = new JSONObject();
+    try {
+      obj.put("id", id);
+      obj.put("done", 1);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    StringRequest stringReq = new StringRequest(Request.Method.POST, url,
+        response -> {
+          Log.d(TAG, "markTodo Response: " + response);
+          try {
+            JSONObject respJSON = new JSONObject(response);
+            if (respJSON.has("code")) {
+              int code = respJSON.getInt("code");
+              if (code == 0) {
+                ctx.getTodo(ctx);
+              }
+            }
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+        },
+        error -> Log.e(TAG, "Volley Error : " + error.getMessage())
+    ){
+      @Override
+      public byte[] getBody() {
+        return obj.toString().getBytes();
+      }
+
+      @Override
+      public String getBodyContentType() {
+        return "application/json";
+      }
+
+      @Override
+      public Map<String, String> getHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+
+        return headers;
+      }
+    };
+
+    queue.add(stringReq);
+  }
+
+  private void deleteTodo(
+      @NonNull MainActivity ctx,
+      int id
+  ) {
+    RequestQueue queue = Volley.newRequestQueue(ctx);
+    String url = END_POINT + "/deleteTodo";
+
+    JSONObject obj = new JSONObject();
+    try {
+      obj.put("id", id);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+
+    StringRequest stringReq = new StringRequest(Request.Method.POST, url,
+        response -> {
+          Log.d(TAG, "markTodo Response: " + response);
           try {
             JSONObject respJSON = new JSONObject(response);
             if (respJSON.has("code")) {
