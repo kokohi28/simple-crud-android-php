@@ -3,7 +3,7 @@ switch ($_SERVER["REQUEST_URI"]) {
   case "/":
     echo "Hello world!";
     break;
-
+  
   case "/addTodo":
     include("addtodo.php");
     break;
